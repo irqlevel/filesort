@@ -9,6 +9,7 @@ import (
 	"strings"
 	"bufio"
 	"io"
+	"sort"
 )
 
 func generateString(lineLen int) (string, error) {
@@ -83,6 +84,49 @@ func SortFile(filePath string) error {
 	return nil
 }
 
+func SortFileInMemory(filePath string) error {
+	filePath, err := filepath.Abs(filePath)
+	if err != nil {
+		return fmt.Errorf("Can't get abs path of %s error %v", filePath, err)
+	}
+
+	f, err := os.OpenFile(filePath, os.O_RDWR, 0666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	reader := bufio.NewReader(f)
+	lines := make([]string, 0)
+	for {
+		s, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return fmt.Errorf("Can't read file %s error %v", filePath, err)
+		}
+
+		lines = append(lines, s)
+	}
+
+	sort.Strings(lines)
+
+	err = f.Truncate(0)
+	if err != nil {
+		return fmt.Errorf("Can't truncate file %s error %v", filePath, err)
+	}
+
+	for _, line := range lines {
+		_, err = f.WriteString(line)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func IsFileSorted(filePath string) (bool, error) {
 	filePath, err := filepath.Abs(filePath)
 	if err != nil {
@@ -97,6 +141,7 @@ func IsFileSorted(filePath string) (bool, error) {
 
 	reader := bufio.NewReader(f)
 	prev := ""
+	var pos int64
 	for {
 		s, err := reader.ReadString('\n')
 		if err != nil {
@@ -106,10 +151,13 @@ func IsFileSorted(filePath string) (bool, error) {
 			return false, fmt.Errorf("Can't read file %s error %v", filePath, err)
 		}
 
-		if strings.Compare(prev, s) > 0 {
-			return false, nil
+		if pos > 0 {
+			if strings.Compare(prev, s) > 0 {
+				return false, nil
+			}
 		}
 		prev = s
+		pos++
 	}
 
 	return true, nil
