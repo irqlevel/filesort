@@ -1,8 +1,11 @@
-#!/bin/bash -xv
+#!/bin/bash
 rm -f filesort.bin
 go build -o filesort.bin main.go
 FILE=./test-file
-./filesort.bin -cmd generate -filePath $FILE -numLines 10 -lineLen 5
-./filesort.bin -cmd sort -filePath $FILE -memory
+ORIG_FILE=./test-file-orig
+rm -f $FILE
+rm -f $ORIG_FILE
+./filesort.bin -cmd generate -filePath $FILE -numLines 4 -lineLen 5
+cp $FILE $ORIG_FILE
+./filesort.bin -cmd sort -filePath $FILE
 ./filesort.bin -cmd check -filePath $FILE
-./filesort.bin -cmd remove -filePath $FILE

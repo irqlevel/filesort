@@ -23,6 +23,9 @@ func do() int {
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
+	log.Printf("cmd %s filePath %s memory %t numLines %d lineLen %d\n",
+		cmd, filePath, memory, numLines, lineLen)
+
 	switch cmd {
 	case "sort":
 		var err error

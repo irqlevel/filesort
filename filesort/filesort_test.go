@@ -17,13 +17,23 @@ func TestFileSortInMemory(t *testing.T) {
 	}
 	defer RemoveFile(filePath)
 
+	ok, err := IsFileSorted(filePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if ok {
+		t.Fatal("file already sorted")
+		return
+	}
+
 	err = SortFileInMemory(filePath)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	ok, err := IsFileSorted(filePath)
+	ok, err = IsFileSorted(filePath)
 	if err != nil {
 		t.Error(err)
 		return
@@ -38,12 +48,22 @@ func TestFileSort(t *testing.T) {
 	log.SetOutput(os.Stdout)
 
 	filePath := "./test-file"
-	err := GenerateFile(filePath, 10, 5)
+	err := GenerateFile(filePath, 999971, 5)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 	defer RemoveFile(filePath)
+
+	ok, err := IsFileSorted(filePath)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if ok {
+		t.Fatal("file already sorted")
+		return
+	}
 
 	err = SortFile(filePath)
 	if err != nil {
@@ -51,7 +71,7 @@ func TestFileSort(t *testing.T) {
 		return
 	}
 
-	ok, err := IsFileSorted(filePath)
+	ok, err = IsFileSorted(filePath)
 	if err != nil {
 		t.Error(err)
 		return
