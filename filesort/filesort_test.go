@@ -1,11 +1,13 @@
 package filesort
 
 import (
-	"testing"
+	"fmt"
 	"log"
 	"os"
+	"testing"
 )
 
+//test file sorting in memory
 func TestFileSortInMemory(t *testing.T) {
 	log.SetOutput(os.Stdout)
 
@@ -44,40 +46,59 @@ func TestFileSortInMemory(t *testing.T) {
 	}
 }
 
-func TestFileSort(t *testing.T) {
-	log.SetOutput(os.Stdout)
+type sortParams struct {
+	numLines int64
+	lineLen  int
+	maxLines int
+}
 
+func testFileSortWithParams(params sortParams) error {
 	filePath := "./test-file"
-	err := GenerateFile(filePath, 999971, 5)
+	err := GenerateFile(filePath, params.numLines, params.lineLen)
 	if err != nil {
-		t.Error(err)
-		return
+		return err
 	}
 	defer RemoveFile(filePath)
 
 	ok, err := IsFileSorted(filePath)
 	if err != nil {
-		t.Error(err)
-		return
-	}
-	if ok {
-		t.Fatal("file already sorted")
-		return
+		return err
 	}
 
-	err = SortFile(filePath)
+	if ok {
+		return fmt.Errorf("file already sorted")
+	}
+
+	err = SortFile(filePath, params.maxLines)
 	if err != nil {
-		t.Error(err)
-		return
+		return err
 	}
 
 	ok, err = IsFileSorted(filePath)
 	if err != nil {
-		t.Error(err)
-		return
+		return err
 	}
 
 	if !ok {
-		t.Fatal("file is not sorted")
+		return fmt.Errorf("file not sorted")
+	}
+
+	return nil
+}
+
+//test file sorting with different parameters numLines, lineLen, maxLines(memory limit)
+func TestFileSort(t *testing.T) {
+	log.SetOutput(os.Stdout)
+
+	params := []sortParams{{10, 5, 2},
+		{7, 3, 2},
+		{105097, 73, 541}}
+
+	for _, param := range params {
+		err := testFileSortWithParams(param)
+		if err != nil {
+			t.Fatalf("sort with params %v failed error %v", param, err)
+			return
+		}
 	}
 }

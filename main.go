@@ -1,30 +1,33 @@
 package main
 
 import (
-	"os"
 	"./filesort"
-	"log"
 	"flag"
+	"log"
+	"os"
 )
 
-func do() int {
+//command line utility to generate/sort/check/remove files
+func do_job() int {
 	var filePath string
 	var cmd string
 	var numLines int64
 	var lineLen int
 	var memory bool
+	var maxLines int
 
 	flag.StringVar(&filePath, "filePath", "", "file to sort")
 	flag.StringVar(&cmd, "cmd", "", "command to execute")
 	flag.Int64Var(&numLines, "numLines", -1, "number of file lines")
 	flag.IntVar(&lineLen, "lineLen", -1, "file line length")
 	flag.BoolVar(&memory, "memory", false, "sort file in memory")
+	flag.IntVar(&maxLines, "maxLines", -1, "max file lines to use in sort")
 
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
-	log.Printf("cmd %s filePath %s memory %t numLines %d lineLen %d\n",
-		cmd, filePath, memory, numLines, lineLen)
+	log.Printf("cmd %s filePath %s memory %t numLines %d lineLen %d maxLines\n",
+		cmd, filePath, memory, numLines, lineLen, maxLines)
 
 	switch cmd {
 	case "sort":
@@ -32,7 +35,7 @@ func do() int {
 		if memory {
 			err = filesort.SortFileInMemory(filePath)
 		} else {
-			err = filesort.SortFile(filePath)
+			err = filesort.SortFile(filePath, maxLines)
 		}
 
 		if err != nil {
@@ -69,5 +72,5 @@ func do() int {
 }
 
 func main() {
-	os.Exit(do())
+	os.Exit(do_job())
 }
