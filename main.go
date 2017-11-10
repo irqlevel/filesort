@@ -3,8 +3,8 @@ package main
 import (
 	"./filesort"
 	"flag"
-	"log"
 	"os"
+	"log"
 )
 
 //command line utility to generate/sort/check/remove files
@@ -26,8 +26,6 @@ func do_job() int {
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
-	log.Printf("cmd %s filePath %s memory %t numLines %d lineLen %d maxLines\n",
-		cmd, filePath, memory, numLines, lineLen, maxLines)
 
 	switch cmd {
 	case "sort":

@@ -4,6 +4,7 @@
 main.go - command line utility
 filesort/filesort.go - core code to sort files with memory limit
 filesort/filesort_test.go - tests
+test.sh - script to show command line utility work
 
 #### Usage:
 go build -o filesort.bin main.go - to create command line utility which
